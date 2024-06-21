@@ -1,14 +1,12 @@
 pipeline {
-    agent {
-      label 'ec2'
-        }
+    agent any
 
     environment {
         //DOCKER_REGISTRY = "584294315145.dkr.ecr.us-east-1.amazonaws.com"
-        AWS_ECR_REGISTRY = "584294315145.dkr.ecr.us-east-1.amazonaws.com"
-        SONARQUBE_SERVER = "http://52.205.167.69:9000"
-        AWS_SECRET_ACCESS_KEY = "E8u5Bi+vZlTjuONVFhTvoH+pb/Xf8Z3I3FG9WDJZ"
-        AWS_ACCESS_KEY_ID = "AKIAYQCVHWSEV7YDVG77"
+        AWS_ECR_REGISTRY = "992382568751.dkr.ecr.us-east-1.amazonaws.com"
+        SONARQUBE_SERVER = "http://192.168.1.7:9000"
+        AWS_SECRET_ACCESS_KEY = "8JjcNfaGdOnDXRyIlwvhQG6UIvIAJAh5nsJiPQfwZ"
+        AWS_ACCESS_KEY_ID = "AKIA6ODU4JEX6Q6VXYR5"
         //DOCKER_IMAGE = "jenkins"
     }
     stages {
@@ -28,10 +26,10 @@ pipeline {
                 sh 'python3 -m venv ~/myenv'
                 sh """
                 set +x
-                . /home/ubuntu/myenv/bin/activate
+                . /home/vijit/myenv/bin/activate
                 """
                 sh """
-                /home/ubuntu/.local/bin/pytest /home/ubuntu/workspace/hello_world_demo/tests/test_main.py
+                /home/vijit/.local/bin/pytest /home/vijit/workspace/hello_world_demo/tests/test_main.py
                """
             }
         }
