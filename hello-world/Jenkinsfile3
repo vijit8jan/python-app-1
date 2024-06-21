@@ -8,6 +8,7 @@ pipeline {
         AWS_SECRET_ACCESS_KEY = "8JjcNfaGdOnDXRyIlwvhQG6UIvIAJAh5nsJiPQfwZ"
         AWS_ACCESS_KEY_ID = "AKIA6ODU4JEX6Q6VXYR5"
         //DOCKER_IMAGE = "jenkins"
+       VENV_DIR = "${env.WORKSPACE}/venv"
     }
     stages {
         stage('Checkout') {
@@ -34,10 +35,12 @@ pipeline {
         stage('Code Coverage') {
             steps {
                 sh """
-                python3-coverage run -m pytest /var/lib/jenkins/workspace/jenkins-python-demo/hello-world/tests/test_main.py
+                source ${VENV_DIR}/bin/activate
+                export PYTHONPATH=${env.WORKSPACE}/hello-world
+                coverage run -m pytest /var/lib/jenkins/workspace/jenkins-python-demo/hello-world/tests/test_main.py
+                coverage report
+                coverage xml -o coverage.xml
                 """
-                sh 'python3-coverage report'
-                sh 'python3-coverage xml -o coverage.xml'
                 cobertura coberturaReportFile: 'coverage.xml'
             }
         }
