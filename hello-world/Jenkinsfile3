@@ -60,15 +60,15 @@ pipeline {
             }
         }
         
-        stage('Static code analysis using SonarQube') {
-            steps {
-                dir('/opt/jenkins/workspace') {
-                    script {
+        //stage('Static code analysis using SonarQube') {
+          //  steps {
+            //    dir('/opt/jenkins/workspace') {
+              //      script {
                         
-                    }
-                }
-            }
-        }
+                //    }
+               // }
+           // }
+        //}
         
         stage('Check Quality Gate') {
             steps {
