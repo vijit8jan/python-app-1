@@ -36,8 +36,8 @@ pipeline {
                 sh """
                 python3-coverage run -m pytest /var/lib/jenkins/workspace/jenkins-python-demo/hello-world/tests/test_main.py
                 """
-                sh '/home/ubuntu/.local/bin/coverage report'
-                sh '/home/ubuntu/.local/bin/coverage xml -o coverage.xml'
+                sh 'python3-coverage report'
+                sh 'python3-coverage xml -o coverage.xml'
                 cobertura coberturaReportFile: 'coverage.xml'
             }
         }
