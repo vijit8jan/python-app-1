@@ -23,7 +23,7 @@ pipeline {
             steps {
                 sh 'docker --version'
                 sh 'docker pull python:3.9'
-                sh 'apt install `cat requirements.txt`'
+                sh 'apt install python3-coverage python3-pytest python3.12-venv -y'
                 sh 'python3 -m venv ~/myenv'
                 sh """
                 set +x
