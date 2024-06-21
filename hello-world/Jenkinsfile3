@@ -32,7 +32,7 @@ pipeline {
             steps {
                 dir('/opt/jenkins/workspace') {
                     script {
-                        sh 'pytest --junitxml=reports/results.xml'
+                        sh 'pytest --junitxml=/opt/jenkins/workspace/reports/results.xml'
                     }
                 }
             }
