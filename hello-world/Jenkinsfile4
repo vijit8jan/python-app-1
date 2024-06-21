@@ -40,7 +40,7 @@ pipeline {
                         sh '''
                         # Activate virtual environment by directly calling the interpreter and pip from the venv
                         /var/lib/jenkins/workspace/myenv/bin/python -m pip install --upgrade pip
-                        /vara/lib/jenkins/workspace/myenv/bin/python -m pip install -r hello-world/requirements.txt
+                        /var/lib/jenkins/workspace/myenv/bin/python -m pip install -r hello-world/requirements.txt
                         /var/lib/jenkins/workspace/myenv/bin/python -m pytest /opt/jenkins/workspace/hello-world/tests/test_main.py
                         '''
 
