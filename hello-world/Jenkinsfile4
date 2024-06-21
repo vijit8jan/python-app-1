@@ -1,1 +1,120 @@
 
+pipeline {
+    agent any
+
+    environment {
+        // Define any environment variables needed for the pipeline
+        SONARQUBE_SERVER = "http://192.168.1.7:9000"
+        AWS_CREDENTIALS = credentials('aws-credentials-id') // Replace with your AWS credentials ID
+        DOCKER_REGISTRY = "992382568751.dkr.ecr.us-east-1.amazonaws.com"
+        IMAGE_NAME = "hello-world"
+        IMAGE_TAG = "latest"
+    }
+
+    stages {
+        stage('Prepare Workspace') {
+            steps {
+                script {
+                    sh 'mkdir -p /opt/jenkins/workspace'
+                }
+            }
+        }
+
+        stage('Checkout') {
+            steps {
+                dir('/opt/jenkins/workspace') {
+                    checkout([$class: 'GitSCM', branches: [[name: '*/main']], userRemoteConfigs: [[url: 'https://github.com/vijit8jan/python-app-1.git']]])
+                }
+            }
+        }
+        
+
+        stage('Unit testing') {
+            steps {
+                dir('/opt/jenkins/workspace') {
+                    script {
+                        sh 'docker --version'
+                        sh 'docker pull python:3.9'
+                        sh 'python3 -m venv /var/lib/jenkins/workspace/myenv'
+                        sh 'mkdir -p /var/lib/jenkins/workspace/reports'
+                        sh '''
+                        # Activate virtual environment by directly calling the interpreter and pip from the venv
+                        /var/lib/jenkins/workspace/myenv/bin/python -m pip install --upgrade pip
+                        /vara/lib/jenkins/workspace/myenv/bin/python -m pip install -r hello-world/requirements.txt
+                        /var/lib/jenkins/workspace/myenv/bin/python -m pytest /opt/jenkins/workspace/hello-world/tests/test_main.py
+                        '''
+
+                    }
+                }
+            }
+        }
+        
+        stage('Code coverage') {
+            steps {
+                dir('/opt/jenkins/workspace') {
+                    script {
+                        sh 'python3 -m venv /var/lib/jenkins/workspace/myenv'
+                        sh '/var/lib/jenkins/workspace/myenv/bin/python -m pip install coverage'
+                        sh '/var/lib/jenkins/workspace/myenv/bin/coverage  run -m pytest /opt/jenkins/workspace/hello-world/tests/test_main.py'
+                        sh '/var/lib/jenkins/workspace/myenv/bin/coverage report'
+                        sh '/var/lib/jenkins/workspace/myenv/bin/coverage xml -o coverage.xml'
+                        cobertura coberturaReportFile: 'coverage.xml'
+                    }
+                }
+            }
+              
+        }
+        
+        //stage('Static code analysis using SonarQube') {
+          //  steps {
+            //    dir('/opt/jenkins/workspace') {
+              //      script {
+                        
+                //    }
+               // }
+           // }
+        //}
+        
+        stage('Check Quality Gate') {
+            steps {
+                script {
+                    timeout(time: 1, unit: 'MINUTES') {
+                        waitForQualityGate abortPipeline: true
+                    }
+                }
+            }
+        }
+        
+        stage('Build and tag image using Docker') {
+            steps {
+                dir('/opt/jenkins/workspace') {
+                    script {
+                        sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                        sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+                    }
+                }
+            }
+        }
+        
+        stage('Image scan using Trivy') {
+            steps {
+                script {
+                    sh "trivy image --exit-code 1 --severity HIGH ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+                }
+            }
+        }
+        
+        stage('Push to AWS ECR') {
+            steps {
+                script {
+                    // Login to AWS ECR
+                    sh "aws ecr get-login-password --region your-region | docker login --username AWS --password-stdin ${DOCKER_REGISTRY}"
+                    // Push the image
+                    sh "docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+                }
+            }
+        }
+    }
+
+    
+}
