@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/home/ubuntu/workspace/jenkins-python-demo/hello-world')
+sys.path.append('/var/lib/jenkins/workspace/jenkins-python-demo/hello-world')
 
 
 import pytest
