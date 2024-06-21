@@ -1,2 +1,3 @@
-pytest
-coverage
+python3-pytest
+python3-coverage
+python3.12-venv
