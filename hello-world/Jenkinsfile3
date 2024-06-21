@@ -35,12 +35,10 @@ pipeline {
         stage('Code Coverage') {
             steps {
                 sh """
-                source ${VENV_DIR}/bin/activate
-                export PYTHONPATH=${env.WORKSPACE}/hello-world
-                coverage run -m pytest /var/lib/jenkins/workspace/jenkins-python-demo/hello-world/tests/test_main.py
-                coverage report
-                coverage xml -o coverage.xml
+                python3-coverage run -m pytest /var/lib/jenkins/workspace/jenkins-python-demo/hello-world/tests/test_main.py
                 """
+                sh 'python3-coverage report'
+                sh 'python3-coverage xml -o coverage.xml'
                 cobertura coberturaReportFile: 'coverage.xml'
             }
         }
