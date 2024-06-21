@@ -32,21 +32,23 @@ pipeline {
             steps {
                 dir('/opt/jenkins/workspace') {
                     script {
-                       sh 'docker --version'
-                       sh 'docker pull python:3.9'
-                       sh 'python3 -m venv /opt/jenkins/workspace/myenv'
-                       sh '''#!/bin/bash
-                       set +x
-                       source /opt/jenkins/workers/myenv/bin/activate
-                       pip install -r hello-world/requirements.txt 
-                       pytest --junitxml=/opt/jenkins/workspace/reports/results.xm
-                       '''
+                        sh 'docker --version'
+                        sh 'docker pull python:3.9'
+                        sh 'python3 -m venv /opt/jenkins/workspace/myenv'
+                        sh 'mkdir -p /opt/jenkins/workspace/reports'
+                        sh '''
+                        # Activate virtual environment by directly calling the interpreter and pip from the venv
+                        /opt/jenkins/workspace/myenv/bin/python -m pip install --upgrade pip
+                        /opt/jenkins/workspace/myenv/bin/python -m pip install -r hello-world/requirements.txt
+                        /opt/jenkins/workspace/myenv/bin/python -m pytest --junitxml=/opt/jenkins/workspace/reports/results.xml
+                        '''
+
                     }
                 }
             }
             post {
                 always {
-                    junit '**/reports/results.xml'
+                    junit 'reports/results.xml'
                 }
             }
         }
