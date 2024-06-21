@@ -73,18 +73,10 @@ pipeline {
                                 -Dsonar.sources=hello-world \
                                 -Dsonar.host.url=http://192.168.1.7:9000 \
                                  -Dsonar.login=squ_e692c2b4cbfd870757e314bd25a8c29b57c5978e"
+                        waitForQualityGate()
                         } else {
                             error "SonarQube Scanner not configured."
                         }
-                    }
-                }
-            }
-        }
-        stage('Check Quality Gate') {
-            steps {
-                script {
-                    timeout(time: 1, unit: 'MINUTES') {
-                        waitForQualityGate abortPipeline: true
                     }
                 }
             }
