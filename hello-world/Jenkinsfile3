@@ -55,7 +55,7 @@ pipeline {
                         sh 'python3-coverage run -m pytest'
                         sh 'python3-coverage report -m'
                         sh 'python3-coverage xml -o coverage-reports/coverage.xml'
-                        cobertura coberturaReportFile: 'coverage.xml'
+                        cobertura coberturaReportFile: '/opt/jenkins/workspace/coverage-reports/coverage.xml'
                     }
                 }
             }
