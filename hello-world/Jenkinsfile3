@@ -33,9 +33,8 @@ pipeline {
         
         stage('Code Coverage') {
             steps {
-                sh 'pip install coverage'
                 sh """
-                /home/ubuntu/.local/bin/coverage run -m pytest /home/ubuntu/workspace/hello_world_demo/tests/test_main.py
+                python3-coverage run -m pytest /var/lib/jenkins/workspace/jenkins-python-demo/hello-world/tests/test_main.py
                 """
                 sh '/home/ubuntu/.local/bin/coverage report'
                 sh '/home/ubuntu/.local/bin/coverage xml -o coverage.xml'
