@@ -40,15 +40,10 @@ pipeline {
                         # Activate virtual environment by directly calling the interpreter and pip from the venv
                         /opt/jenkins/workspace/myenv/bin/python -m pip install --upgrade pip
                         /opt/jenkins/workspace/myenv/bin/python -m pip install -r hello-world/requirements.txt
-                        /opt/jenkins/workspace/myenv/bin/python -m pytest --junitxml=/opt/jenkins/workspace/reports/results.xml
+                        /opt/jenkins/workspace/myenv/bin/python -m pytest /opt/jenkins/workspace/hello_world_demo/tests/test_main.py
                         '''
 
                     }
-                }
-            }
-            post {
-                always {
-                    junit 'reports/results.xml'
                 }
             }
         }
