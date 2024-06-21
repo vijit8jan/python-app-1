@@ -35,13 +35,12 @@ pipeline {
                        sh 'docker --version'
                        sh 'docker pull python:3.9'
                        sh 'python3 -m venv /opt/jenkins/workspace/myenv'
-                       sh """
-                       #!/bin/bash
+                       sh '''#!/bin/bash
                        set +x
                        source /opt/jenkins/workers/myenv/bin/activate
                        pip install -r hello-world/requirements.txt 
                        pytest --junitxml=/opt/jenkins/workspace/reports/results.xm
-                       """
+                       '''
                     }
                 }
             }
