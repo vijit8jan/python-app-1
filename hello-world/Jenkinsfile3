@@ -53,7 +53,7 @@ pipeline {
                 dir('/opt/jenkins/workspace') {
                     script {
                         sh '/opt/jenkins/workspace/myenv/bin/python -m pip install coverage'
-                        sh '/opt/jenkins/workspace/myenv/bin/coverage  run -m pytest /home/ubuntu/workspace/hello-world/tests/test_main.py'
+                        sh '/opt/jenkins/workspace/myenv/bin/coverage  run -m pytest /opt/jenkins/workspace/hello-world/tests/test_main.py'
                         sh '/opt/jenkins/workspace/myenv/bin/coverage report'
                         sh '/opt/jenkins/workspace/myenv/bin/coverage xml -o coverage.xml'
                         cobertura coberturaReportFile: 'coverage.xml'
