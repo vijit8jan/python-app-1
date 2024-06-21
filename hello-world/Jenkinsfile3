@@ -56,15 +56,16 @@ pipeline {
                         sh '/opt/jenkins/workspace/myenv/bin/coverage  run -m pytest /opt/jenkins/workspace/hello-world/tests/test_main.py'
                         sh '/opt/jenkins/workspace/myenv/bin/coverage report'
                         sh '/opt/jenkins/workspace/myenv/bin/coverage xml -o coverage.xml'
+                        
                     }
                 }
             }
-             post {
-                always {
-                    junit '/opt/workspace/jenkins/reports/results.xml'
-                    cobertura coberturaReportFile: '**/coverage.xml'
-                }
-            }
+              post {
+                 always {
+                     junit '/opt/workspace/jenkins/reports/results.xml'
+                     cobertura coberturaReportFile: '**/coverage.xml'
+                 }
+             }
         }
         
         //stage('Static code analysis using SonarQube') {
