@@ -3,9 +3,9 @@ pipeline {
 
     environment {
         // Define any environment variables needed for the pipeline
-        SONARQUBE_SCANNER_HOME = tool 'SonarQubeScanner' // Assuming you have a SonarQube scanner tool configured in Jenkins
+        SONARQUBE_SERVER = "http://192.168.1.7:9000"
         AWS_CREDENTIALS = credentials('aws-credentials-id') // Replace with your AWS credentials ID
-        DOCKER_REGISTRY = "your-aws-account-id.dkr.ecr.your-region.amazonaws.com"
+        DOCKER_REGISTRY = "992382568751.dkr.ecr.us-east-1.amazonaws.com"
         IMAGE_NAME = "hello-world"
         IMAGE_TAG = "latest"
     }
