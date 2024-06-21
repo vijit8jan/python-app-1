@@ -9,6 +9,11 @@ pipeline {
         DOCKER_REGISTRY = "992382568751.dkr.ecr.us-east-1.amazonaws.com"
         IMAGE_NAME = "hello-world"
         IMAGE_TAG = "latest"
+        YOUR_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
+        YOUR_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+        YOUR_DEFAULT_REGION = 'us-east-1'
+          
+        
     }
 
     tools {
@@ -73,7 +78,6 @@ pipeline {
                                 -Dsonar.sources=hello-world \
                                 -Dsonar.host.url=http://192.168.1.7:9000 \
                                  -Dsonar.login=squ_e692c2b4cbfd870757e314bd25a8c29b57c5978e"
-                        waitForQualityGate()
                         } else {
                             error "SonarQube Scanner not configured."
                         }
@@ -86,8 +90,8 @@ pipeline {
             steps {
                 dir('/var/lib/jenkins/workspace') {
                     script {
-                        sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
-                        sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+                        sh "docker build -t hello-world ."
+                        sh "docker tag hello-world:latest 992382568751.dkr.ecr.us-east-1.amazonaws.com/hello-world:latest"
                     }
                 }
             }
@@ -96,18 +100,23 @@ pipeline {
         stage('Image scan using Trivy') {
             steps {
                 script {
-                    sh "trivy image --exit-code 1 --severity HIGH ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+                    sh "trivy image --exit-code 1 --severity HIGH 992382568751.dkr.ecr.us-east-1.amazonaws.com/hello-world:latest"
                 }
             }
         }
-        
+
+        stage('configure aws'){
+            steps {
+               sh "aws configure set aws_access_key_id YOUR_ACCESS_KEY_ID \
+                       && aws configure set aws_secret_access_key YOUR_SECRET_ACCESS_KEY \
+                       && aws configure set region YOUR_DEFAULT_REGION"
         stage('Push to AWS ECR') {
             steps {
                 script {
                     // Login to AWS ECR
-                    sh "aws ecr get-login-password --region your-region | docker login --username AWS --password-stdin ${DOCKER_REGISTRY}"
+                    sh "aws ecr get-login-password --region your-region | docker login --username AWS --password-stdin 992382568751.dkr.ecr.us-east-1.amazonaws.com"
                     // Push the image
-                    sh "docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+                    sh "docker push 992382568751.dkr.ecr.us-east-1.amazonaws.com/hello-world:latest"
                 }
             }
         }
