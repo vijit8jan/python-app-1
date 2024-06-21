@@ -12,17 +12,10 @@ pipeline {
     }
 
     stages {
-        stage('Prepare Workspace') {
-            steps {
-                script {
-                    sh 'mkdir -p /opt/jenkins/workspace'
-                }
-            }
-        }
 
         stage('Checkout') {
             steps {
-                dir('/opt/jenkins/workspace') {
+                dir('/var/lib/jenkins/workspace') {
                     checkout([$class: 'GitSCM', branches: [[name: '*/main']], userRemoteConfigs: [[url: 'https://github.com/vijit8jan/python-app-1.git']]])
                 }
             }
@@ -31,7 +24,7 @@ pipeline {
 
         stage('Unit testing') {
             steps {
-                dir('/opt/jenkins/workspace') {
+                dir('/var/lib/jenkins/workspace') {
                     script {
                         sh 'docker --version'
                         sh 'docker pull python:3.9'
@@ -51,7 +44,7 @@ pipeline {
         
         stage('Code coverage') {
             steps {
-                dir('/opt/jenkins/workspace') {
+                dir('/var/lib/jenkins/workspace') {
                     script {
                         sh 'python3 -m venv /var/lib/jenkins/workspace/myenv'
                         sh '/var/lib/jenkins/workspace/myenv/bin/python -m pip install coverage'
@@ -87,7 +80,7 @@ pipeline {
         
         stage('Build and tag image using Docker') {
             steps {
-                dir('/opt/jenkins/workspace') {
+                dir('/var/lib/jenkins/workspace') {
                     script {
                         sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
                         sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
