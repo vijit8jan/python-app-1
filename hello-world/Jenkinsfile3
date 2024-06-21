@@ -22,7 +22,6 @@ pipeline {
             steps {
                 sh 'docker --version'
                 sh 'docker pull python:3.9'
-                sh 'pip install -r requirements.txt'
                 sh 'python3 -m venv ~/myenv'
                 sh """
                 pwd
@@ -30,7 +29,7 @@ pipeline {
                 . /home/ubuntu/myenv/bin/activate
                 """
                 sh """
-                /home/ubuntu/.local/bin/pytest /home/ubuntu/workspace/hello_world_demo/tests/test_main.py
+                /home/ubuntu/.local/bin/pytest /home/ubuntu/workspace/jenkins-python-demo/hello-world/tests/test_main.py
                """
             }
         }
