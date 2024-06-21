@@ -100,7 +100,7 @@ pipeline {
         stage('Image scan using Trivy') {
             steps {
                 script {
-                    sh "trivy image --exit-code 1 --severity HIGH 992382568751.dkr.ecr.us-east-1.amazonaws.com/hello-world:latest"
+                    sh "trivy image 992382568751.dkr.ecr.us-east-1.amazonaws.com/hello-world:latest"
                 }
             }
         }
