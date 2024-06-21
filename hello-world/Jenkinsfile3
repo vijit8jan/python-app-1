@@ -2,111 +2,118 @@ pipeline {
     agent any
 
     environment {
-        //DOCKER_REGISTRY = "584294315145.dkr.ecr.us-east-1.amazonaws.com"
-        AWS_ECR_REGISTRY = "992382568751.dkr.ecr.us-east-1.amazonaws.com"
-        SONARQUBE_SERVER = "http://192.168.1.7:9000"
-        AWS_SECRET_ACCESS_KEY = "8JjcNfaGdOnDXRyIlwvhQG6UIvIAJAh5nsJiPQfwZ"
-        AWS_ACCESS_KEY_ID = "AKIA6ODU4JEX6Q6VXYR5"
-        //DOCKER_IMAGE = "jenkins"
-       VENV_DIR = "${env.WORKSPACE}/venv"
+        // Define any environment variables needed for the pipeline
+        SONARQUBE_SCANNER_HOME = tool 'SonarQubeScanner' // Assuming you have a SonarQube scanner tool configured in Jenkins
+        AWS_CREDENTIALS = credentials('aws-credentials-id') // Replace with your AWS credentials ID
+        DOCKER_REGISTRY = "your-aws-account-id.dkr.ecr.your-region.amazonaws.com"
+        IMAGE_NAME = "hello-world"
+        IMAGE_TAG = "latest"
     }
+
     stages {
+        stage('Prepare Workspace') {
+            steps {
+                script {
+                    sh 'mkdir -p /opt/jenkins/workspace'
+                }
+            }
+        }
+
         stage('Checkout') {
             steps {
-                retry(3) {
+                dir('/opt/jenkins/workspace') {
                     checkout([$class: 'GitSCM', branches: [[name: '*/main']], userRemoteConfigs: [[url: 'https://github.com/vijit8jan/python-app-1.git']]])
                 }
             }
         }
         
-        stage('Unit Test and Coverage') {
-            steps {
-                sh 'docker --version'
-                sh 'docker pull python:3.9'
-                sh '''
-                docker run --rm -v $PWD:/app -w /app python:3.9 bash -c "
-                python -m venv venv &&
-                source venv/bin/activate &&
-                pip install -r pytest coverage venv &&
-                pytest hellow-world/tests/test_main.py --cov=hello_world --cov-report=xml --cov-report=term
-                "
-                '''
-            }
-        }
 
-        stage('Code Coverage Report') {
+        stage('Unit testing') {
             steps {
-                cobertura coberturaReportFile: 'coverage.xml'
+                dir('/opt/jenkins/workspace') {
+                    script {
+                        sh 'pytest --junitxml=reports/results.xml'
+                    }
+                }
+            }
+            post {
+                always {
+                    junit '/opt/jenkins/workspace/reports/results.xml'
+                }
             }
         }
         
-        stage('SCA and SonarQube') {
+        stage('Code coverage') {
             steps {
-                // Configure SonarQube environment
-                withSonarQubeEnv('SonarQubeServer') {
-                    // Execute SonarScanner command
+                dir('/opt/jenkins/workspace') {
                     script {
-                        def scannerHome = tool name: 'SonarQubeScanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
-                        if (scannerHome) {
-                            sh 'pwd'
-                            sh "/home/hello-world-demo-python/hello-world/sonar-scanner-5.0.1.3006-linux/bin/sonar-scanner \
-                                -Dsonar.projectKey=hello-world \
-                                -Dsonar.sources=src \
-                                -Dsonar.host.url=http://52.205.167.69:9000 \
-                                -Dsonar.login=squ_031f99275d678658a83cb2960ef6cf99b2be9664"
-                        } else {
-                            error "SonarQube Scanner not configured."
-                        }
+                        sh 'python3-coverage run -m pytest'
+                        sh 'python3-coverage report -m'
+                        sh 'python3-coverage xml -o coverage-reports/coverage.xml'
+                    }
+                }
+            }
+            post {
+                always {
+                    publishCoverage adapters: [coberturaAdapter('/opt/jenkins/workspace/coverage-reports/coverage.xml')]
+                }
+            }
+        }
+        
+        stage('Static code analysis using SonarQube') {
+            steps {
+                dir('/opt/jenkins/workspace') {
+                    script {
+                        
                     }
                 }
             }
         }
         
-        stage('Build') {
+        stage('Check Quality Gate') {
             steps {
-                sh '/usr/bin/python3 setup.py sdist'
-            }
-        }
-        
-       stage('Build and tag image for AWS ECR') {
-    steps {
-        script {
-            sh 'docker build -t github-poc .'
-            sh 'docker tag github-poc:latest 584294315145.dkr.ecr.us-east-1.amazonaws.com/github-poc:latest' 
+                script {
+                    timeout(time: 1, unit: 'MINUTES') {
+                        waitForQualityGate abortPipeline: true
+                    }
                 }
             }
         }
-    
-
-
-        stage('Image scan using Trivy') {
+        
+        stage('Build and tag image using Docker') {
             steps {
-                sh '/usr/bin/trivy image 584294315145.dkr.ecr.us-east-1.amazonaws.com/github-poc:latest' // Example command to scan Docker image with Trivy
+                dir('/opt/jenkins/workspace') {
+                    script {
+                        sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                        sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+                    }
+                }
             }
         }
-
+        
+        stage('Image scan using Trivy') {
+            steps {
+                script {
+                    sh "trivy image --exit-code 1 --severity HIGH ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+                }
+            }
+        }
+        
         stage('Push to AWS ECR') {
             steps {
                 script {
-                    
-                    sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 584294315145.dkr.ecr.us-east-1.amazonaws.com'
-
-                    sh 'docker push 584294315145.dkr.ecr.us-east-1.amazonaws.com/github-poc:latest'
-                        }
-                    }
-                }
-            
-        
-
-        // CD steps
-        stage('Deploy application on EC2') {
-            steps {
-                sshagent(credentials: ['ssh_key']) {
-                    sh 'ssh  -o StrictHostKeyChecking=no ubuntu@52.205.167.69 "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 584294315145.dkr.ecr.us-east-1.amazonaws.com"'
-                    sh 'ssh -o  StrictHostKeyChecking=no ubuntu@52.205.167.69 "docker pull 584294315145.dkr.ecr.us-east-1.amazonaws.com/github-poc:latest"'
-                    sh 'ssh  -o StrictHostKeyChecking=no ubuntu@52.205.167.69 "docker run -d --name jenkins_output -p 8082:8082 584294315145.dkr.ecr.us-east-1.amazonaws.com/github-poc:latest"'
+                    // Login to AWS ECR
+                    sh "aws ecr get-login-password --region your-region | docker login --username AWS --password-stdin ${DOCKER_REGISTRY}"
+                    // Push the image
+                    sh "docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
                 }
             }
         }
-}
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+    }
 }
