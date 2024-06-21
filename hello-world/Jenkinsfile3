@@ -5,8 +5,8 @@ pipeline {
         //DOCKER_REGISTRY = "584294315145.dkr.ecr.us-east-1.amazonaws.com"
         AWS_ECR_REGISTRY = "992382568751.dkr.ecr.us-east-1.amazonaws.com"
         SONARQUBE_SERVER = "http://192.168.1.7:9000"
-        AWS_SECRET_ACCESS_KEY = "E8u5Bi+vZlTjuONVFhTvoH+pb/Xf8Z3I3FG9WDJZ"
-        AWS_ACCESS_KEY_ID = "AKIAYQCVHWSEV7YDVG77"
+        AWS_SECRET_ACCESS_KEY = "8JjcNfaGdOnDXRyIlwvhQG6UIvIAJAh5nsJiPQfwZ"
+        AWS_ACCESS_KEY_ID = "AKIA6ODU4JEX6Q6VXYR5"
         //DOCKER_IMAGE = "jenkins"
     }
     stages {
@@ -25,6 +25,7 @@ pipeline {
                 sh 'pip install -r requirements.txt'
                 sh 'python3 -m venv ~/myenv'
                 sh """
+                pwd
                 set +x
                 . /home/ubuntu/myenv/bin/activate
                 """
