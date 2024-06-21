@@ -55,14 +55,11 @@ pipeline {
                         sh 'python3-coverage run -m pytest'
                         sh 'python3-coverage report -m'
                         sh 'python3-coverage xml -o coverage-reports/coverage.xml'
+                        cobertura coberturaReportFile: 'coverage.xml'
                     }
                 }
             }
-            post {
-                always {
-                    publishCoverage adapters: [coberturaAdapter('/opt/jenkins/workspace/coverage-reports/coverage.xml')]
-                }
-            }
+        
         }
         
         //stage('Static code analysis using SonarQube') {
