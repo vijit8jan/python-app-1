@@ -52,9 +52,10 @@ pipeline {
             steps {
                 dir('/opt/jenkins/workspace') {
                     script {
-                        sh 'python3-coverage run -m pytest'
-                        sh 'python3-coverage report -m'
-                        sh 'python3-coverage xml -o coverage.xml'
+                        sh '/opt/jenkins/workspace/myenv/bin/python -m pip install coverage'
+                        sh '/opt/jenkins/workspace/myenv/bin/coverag-m pytest /home/ubuntu/workspace/hello_world_demo/tests/test_main.py'
+                        sh '/opt/jenkins/workspace/myenv/bin/coverage report'
+                        sh '/opt/jenkins/workspace/myenv/bin/coverage xml -o coverage.xml'
                         cobertura coberturaReportFile: 'coverage.xml'
                     }
                 }
