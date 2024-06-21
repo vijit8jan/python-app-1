@@ -23,15 +23,13 @@ pipeline {
             steps {
                 sh 'docker --version'
                 sh 'docker pull python:3.9'
-                sh 'pip install -r coverage pytest venv'
                 sh 'python3 -m venv ~/myenv'
                 sh """
                 set +x
-                . /var/lib/jenkins/myenv/bin/activate
+                source ~/myenv/bin/activate
+                pip install -r requirements.txt
+                pytest /var/lib/jenkins/workspace/jenkins-python-demo/hello-world/tests/test_main.py
                 """
-                sh """
-                /var/lib/jenkins/.local/bin/pytest /home/ubuntu/workspace/hello_world_demo/tests/test_main.py
-               """
             }
         }
         
