@@ -25,12 +25,9 @@ pipeline {
                 sh 'python3 -m venv ~/myenv'
                 sh """
                 pwd
-                set +x
-                . /home/ubuntu/myenv/bin/activate
+                cd hello-world
+                pytest tests/test_main.py
                 """
-                sh """
-                /home/ubuntu/.local/bin/pytest /home/ubuntu/workspace/jenkins-python-demo/hello-world/tests/test_main.py
-               """
             }
         }
         
