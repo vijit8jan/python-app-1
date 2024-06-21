@@ -11,6 +11,10 @@ pipeline {
         IMAGE_TAG = "latest"
     }
 
+    tools {
+        // Specify the JDK tool to use
+        jdk 'jdk-17'
+    }
     stages {
 
         stage('Checkout') {
