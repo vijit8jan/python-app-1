@@ -46,7 +46,7 @@ pipeline {
             }
             post {
                 always {
-                    junit '/opt/jenkins/workspace/reports/results.xml'
+                    junit '**/reports/results.xml'
                 }
             }
         }
