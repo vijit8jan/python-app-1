@@ -68,11 +68,11 @@ pipeline {
                     script {
                         def scannerHome = tool 'SonarQubeScanner'
                         if (scannerHome) {
-                            sh " /var/lib/jenkins/workspace/jenkis-python-demo/hello-word/sonar-scanner-5.0.1.3006-linux/bin/sonar-scanner \
-                                -Dsonar.projectKey=hello-world \
+                            sh "${scannerHome}/bin/sonar-scanner \
+                              -Dsonar.projectKey=hello-world \
                                 -Dsonar.sources=src \
                                 -Dsonar.host.url=http://192.168.1.7:9000 \
-                                -Dsonar.login=squ_e692c2b4cbfd870757e314bd25a8c29b57c5978e"
+                                 -Dsonar.login=squ_e692c2b4cbfd870757e314bd25a8c29b57c5978e"
                         } else {
                             error "SonarQube Scanner not configured."
                         }
