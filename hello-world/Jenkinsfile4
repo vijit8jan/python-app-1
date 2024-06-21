@@ -88,9 +88,9 @@ pipeline {
         
         stage('Build and tag image using Docker') {
             steps {
-                dir('/var/lib/jenkins/workspace') {
+                dir('/var/lib/jenkins/workspace/jenkins-python-demo/hello-world') {
                     script {
-                        sh "docker build -t hello-world ."
+                        sh "docker build -t hello-world "
                         sh "docker tag hello-world:latest 992382568751.dkr.ecr.us-east-1.amazonaws.com/hello-world:latest"
                     }
                 }
