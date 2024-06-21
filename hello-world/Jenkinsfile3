@@ -26,7 +26,7 @@ pipeline {
                 sh 'python3 -m venv ~/myenv'
                 sh """
                 set +x
-                source ~/myenv/bin/activate
+                ./var/lib/jenkins/myenv/bin/activate
                 pip install -r requirements.txt
                 pytest /var/lib/jenkins/workspace/jenkins-python-demo/hello-world/tests/test_main.py
                 """
