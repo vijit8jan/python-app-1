@@ -61,7 +61,7 @@ pipeline {
             }
              post {
                 always {
-                    junit 'reports/results.xml'
+                    junit '/opt/workspace/jenkins/reports/results.xml'
                     cobertura coberturaReportFile: '**/coverage.xml'
                 }
             }
