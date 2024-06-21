@@ -39,6 +39,7 @@ pipeline {
                        set +x
                        source /opt/jenkins/workers/myenv/bin/activate
                        pip install -r hello-world/requirements.txt 
+                       """ 
                        sh 'pytest --junitxml=/opt/jenkins/workspace/reports/results.xml'
                     }
                 }
