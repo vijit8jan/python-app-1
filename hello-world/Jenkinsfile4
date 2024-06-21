@@ -97,13 +97,13 @@ pipeline {
             }
         }
         
-        stage('Image scan using Trivy') {
-            steps {
-                script {
-                    sh "trivy image 992382568751.dkr.ecr.us-east-1.amazonaws.com/hello-world:latest"
-                }
-            }
-        }
+        //stage('Image scan using Trivy') {
+          //  steps {
+            //    script {
+              //      sh "trivy image 992382568751.dkr.ecr.us-east-1.amazonaws.com/hello-world:latest"
+                //}
+            //}
+        //}
 
         stage('configure aws'){
             steps {
